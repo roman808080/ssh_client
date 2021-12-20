@@ -7,6 +7,9 @@ import org.apache.sshd.common.util.io.output.SecureByteArrayOutputStream;
 import org.apache.sshd.common.config.keys.writer.openssh.OpenSSHKeyPairResourceWriter;
 
 import org.apache.sshd.server.SshServer;
+import org.apache.sshd.server.auth.pubkey.PublickeyAuthenticator;
+import org.apache.sshd.server.config.keys.DefaultAuthorizedKeysAuthenticator;
+
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 
 import java.io.IOException;
@@ -28,6 +31,11 @@ import java.io.ByteArrayOutputStream;
 public class App {
     public static void main(String[] args) throws InterruptedException, IOException {
         SshServer sshd = SshServer.setUpDefaultServer();
+        Path file = Path.of("testkeys/authorized_keys");
+        PublickeyAuthenticator auth = new DefaultAuthorizedKeysAuthenticator(file, false);
+
+        sshd.setPublickeyAuthenticator(auth);
+
         sshd.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(Path.of("key.ser")));
         sshd.setPort(2222);
         sshd.start();
