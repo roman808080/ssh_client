@@ -6,6 +6,9 @@ import org.apache.sshd.common.config.keys.FilePasswordProvider;
 import org.apache.sshd.common.util.io.output.SecureByteArrayOutputStream;
 import org.apache.sshd.common.config.keys.writer.openssh.OpenSSHKeyPairResourceWriter;
 
+import org.apache.sshd.server.SshServer;
+import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -23,7 +26,18 @@ import java.io.ByteArrayOutputStream;
  *
  */
 public class App {
-    public static void main(String[] args) throws IOException, GeneralSecurityException {
+    public static void main(String[] args) throws InterruptedException, IOException {
+        SshServer sshd = SshServer.setUpDefaultServer();
+        sshd.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(Path.of("key.ser")));
+        sshd.setPort(2222);
+        sshd.start();
+
+        while (true) {
+            Thread.sleep(1000);
+        }
+    }
+
+    private static void workingWithEncryption() throws IOException, GeneralSecurityException {
         Path pathToKey = Path.of("testkeys/id_ed25519");
         Path pathToDecryptedKey = Path.of("testkeys/java_id_ed25519_dec");
 
