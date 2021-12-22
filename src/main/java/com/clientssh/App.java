@@ -11,6 +11,8 @@ import org.apache.sshd.server.auth.pubkey.PublickeyAuthenticator;
 import org.apache.sshd.server.config.keys.DefaultAuthorizedKeysAuthenticator;
 
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
+import org.apache.sshd.server.shell.ProcessShellFactory;
+import org.slf4j.impl.SimpleLogger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,6 +32,8 @@ import java.io.ByteArrayOutputStream;
  */
 public class App {
     public static void main(String[] args) throws InterruptedException, IOException {
+        System.setProperty(org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY, "trace");
+
         SshServer sshd = SshServer.setUpDefaultServer();
         Path file = Path.of("testkeys/authorized_keys");
         PublickeyAuthenticator auth = new DefaultAuthorizedKeysAuthenticator(file, false);
@@ -37,6 +41,9 @@ public class App {
         sshd.setPublickeyAuthenticator(auth);
 
         sshd.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(Path.of("key.ser")));
+        // sshd.setShellFactory(new ProcessShellFactory(null, new String[] { "/bin/sh", "-i", "-l" }));
+        sshd.setShellFactory(new ProcessShellFactory("/bin/sh", new String[] {"/bin/sh", "-i", "-l"}));
+
         sshd.setPort(2222);
         sshd.start();
 
